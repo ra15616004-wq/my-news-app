@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="広告なし自分専用ニュースダッシュボード — RSS・ニュースAPI・Xタイムラインを統合">
+    <title>News Hub — パーソナルニュースダッシュボード</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <!-- ========== ヘッダー ========== -->
+    <header id="app-header">
+        <div class="header-inner">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 11a9 9 0 0 1 9 9"></path>
+                        <path d="M4 4a16 16 0 0 1 16 16"></path>
+                        <circle cx="5" cy="19" r="1"></circle>
+                    </svg>
+                </div>
+                <h1>News Hub</h1>
+            </div>
+            <div class="header-actions">
+                <div id="cache-indicator" class="cache-badge hidden">
+                    <span class="cache-dot"></span>
+                    キャッシュ中 <span id="cache-timer">--</span>秒
+                </div>
+                <button id="refresh-btn" class="btn-refresh" title="ニュースを更新">
+                    <svg class="refresh-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    <span>更新</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== メインコンテンツ ========== -->
+    <main id="app-main">
+        <!-- 左カラム: ニュースフィード -->
+        <section id="feed-section">
+            <!-- フィルターバー -->
+            <nav id="filter-bar">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                        すべて
+                    </button>
+                    <button class="filter-tab" data-filter="rss">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 11a9 9 0 0 1 9 9" />
+                            <path d="M4 4a16 16 0 0 1 16 16" />
+                            <circle cx="5" cy="19" r="1" />
+                        </svg>
+                        特定メディア
+                    </button>
+                    <button class="filter-tab" data-filter="api">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        </svg>
+                        カテゴリ
+                    </button>
+                </div>
+                <!-- カテゴリサブフィルター（apiタブ選択時に表示） -->
+                <div id="category-filter" class="category-chips hidden">
+                    <button class="chip active" data-category="all">全カテゴリ</button>
+                </div>
+            </nav>
+
+            <!-- ニュースカードグリッド -->
+            <div id="news-grid" class="news-grid">
+                <!-- 記事カードは動的に挿入 -->
+            </div>
+
+            <!-- ローディング -->
+            <div id="loading-indicator" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>最新ニュースを取得中...</p>
+            </div>
+
+            <!-- 空状態 -->
+            <div id="empty-state" class="empty-state hidden">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    opacity="0.4">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <p>ニュースが見つかりませんでした</p>
+            </div>
+        </section>
+
+        <!-- 右カラム: Xタイムライン -->
+        <aside id="twitter-sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                    タイムライン
+                </h2>
+                <div class="twitter-tab-bar" id="twitter-tabs">
+                    <!-- タブは動的に生成 -->
+                </div>
+            </div>
+            <div id="twitter-embed-container" class="twitter-embed-area">
+                <!-- X埋め込みタイムラインはここに挿入 -->
+            </div>
+        </aside>
+    </main>
+
+    <!-- ========== リーダーモーダル ========== -->
+    <div id="reader-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modal-close" class="modal-close" title="閉じる">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="modal-body">
+                <div class="modal-meta">
+                    <span id="modal-source" class="modal-source"></span>
+                    <span id="modal-date" class="modal-date"></span>
+                    <span id="modal-category" class="modal-category-badge"></span>
+                </div>
+                <h2 id="modal-title" class="modal-title"></h2>
+                <img id="modal-image" class="modal-image hidden" alt="" />
+                <p id="modal-summary" class="modal-summary"></p>
+                <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener noreferrer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    元の記事を読む
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
