@@ -117,6 +117,16 @@ async def get_news(
     except Exception as e:
         logger.error(f"ニュースAPI取得エラー: {e}")
 
+    # --- 重複削除ロジックを追加 ---
+    unique_articles = []
+    seen_urls = set()
+    for article in all_articles:
+        url = article.get("url")
+        if url not in seen_urls:
+            unique_articles.append(article)
+            seen_urls.add(url)
+    all_articles = unique_articles
+
     # 日付順でソート（新しい順）
     all_articles.sort(key=lambda x: x.get("date", ""), reverse=True)
 
