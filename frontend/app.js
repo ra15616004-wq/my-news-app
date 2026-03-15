@@ -372,20 +372,11 @@ function formatDate(dateStr) {
     if (!dateStr) return '';
     try {
         const date = new Date(dateStr);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMin = Math.floor(diffMs / 60000);
-        const diffHr = Math.floor(diffMs / 3600000);
-        const diffDay = Math.floor(diffMs / 86400000);
-
-        if (diffMin < 1) return 'たった今';
-        if (diffMin < 60) return `${diffMin}分前`;
-        if (diffHr < 24) return `${diffHr}時間前`;
-        if (diffDay < 7) return `${diffDay}日前`;
-
-        return date.toLocaleDateString('ja-JP', {
-            month: 'short',
+        return date.toLocaleString('ja-JP', {
+            month: 'numeric',
             day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
     } catch {
         return dateStr;
