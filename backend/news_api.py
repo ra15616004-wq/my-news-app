@@ -72,6 +72,10 @@ def fetch_news_api(category: str = "general", lang: str = "ja", country: str = "
         return []
 
 
+def fetch_all_categories(categories: list[str] = None, lang: str = "ja") -> list[dict]:
+    """
+    複数カテゴリのニュースを一括取得する。
+    """
     if categories is None:
         categories = GNEWS_CATEGORIES
 
@@ -82,6 +86,3 @@ def fetch_news_api(category: str = "general", lang: str = "ja", country: str = "
         all_articles.extend(articles)
 
     return all_articles
-
-
-
