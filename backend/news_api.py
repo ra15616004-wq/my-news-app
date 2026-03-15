@@ -1,4 +1,5 @@
 # news_api.py — GNews API連携
+from __future__ import annotations
 import requests
 import logging
 
@@ -8,7 +9,7 @@ from sanitizer import sanitize_article
 logger = logging.getLogger(__name__)
 
 
-def fetch_news_api(category: str = "general", lang: str = "ja", max_results: int = 10) -> list[dict]:
+def fetch_news_api(category: str = "general", lang: str = "ja", country: str = "jp", max_results: int = 10) -> list[dict]:
     """
     GNews APIからカテゴリ別ニュースを取得する。
     
@@ -21,8 +22,8 @@ def fetch_news_api(category: str = "general", lang: str = "ja", max_results: int
         サニタイズされた記事リスト
     """
     if not GNEWS_API_KEY:
-        logger.warning("GNEWS_API_KEYが設定されていません。ダミーデータを返します。")
-        return _get_dummy_articles(category)
+        logger.warning("GNEWS_API_KEYが設定されていません。")
+        return []
 
     if category not in GNEWS_CATEGORIES:
         category = "general"
@@ -32,6 +33,7 @@ def fetch_news_api(category: str = "general", lang: str = "ja", max_results: int
         params = {
             "category": category,
             "lang": lang,
+            "country": country,
             "max": min(max_results, 10),
             "apikey": GNEWS_API_KEY,
         }
@@ -70,36 +72,16 @@ def fetch_news_api(category: str = "general", lang: str = "ja", max_results: int
         return []
 
 
-def fetch_all_categories(categories: list[str] = None, lang: str = "ja") -> list[dict]:
-    """
-    複数カテゴリのニュースを一括取得する。
-    API制限を考慮し、デフォルトでは3カテゴリに制限。
-    """
     if categories is None:
-        categories = ["general", "technology", "business"]
+        categories = GNEWS_CATEGORIES
 
     all_articles = []
-    for cat in categories[:3]:  # API制限を考慮して最大3カテゴリ
+    # カテゴリを全部取得（厳選済みなのでそのまま使う）
+    for cat in categories:
         articles = fetch_news_api(category=cat, lang=lang)
         all_articles.extend(articles)
 
     return all_articles
 
 
-def _get_dummy_articles(category: str) -> list[dict]:
-    """APIキー未設定時のダミーデータ"""
-    dummy_articles = [
-        {
-            "title": f"[デモ] {category}カテゴリのサンプルニュース #{i+1}",
-            "source": "GNews (デモモード)",
-            "date": "2026-03-05T12:00:00Z",
-            "thumbnail": "",
-            "summary": "GNews APIキーが未設定のため、デモデータを表示しています。"
-                       ".envファイルにGNEWS_API_KEYを設定してください。",
-            "url": "https://gnews.io",
-            "type": "api",
-            "category": category,
-        }
-        for i in range(3)
-    ]
-    return [sanitize_article(a) for a in dummy_articles]
+

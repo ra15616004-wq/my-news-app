@@ -41,7 +41,7 @@
 
     /* スペーシング */
     --header-height: 64px;
-    --sidebar-width: 380px;
+    --sidebar-width: 0px;
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -222,7 +222,7 @@ body {
 #feed-section {
     flex: 1;
     padding: 24px;
-    max-width: calc(100% - var(--sidebar-width));
+    max-width: 100%;
 }
 
 /* フィルターバー */
@@ -483,91 +483,7 @@ body {
     color: var(--text-muted);
 }
 
-/* --- Xサイドバー --- */
-#twitter-sidebar {
-    width: var(--sidebar-width);
-    border-left: 1px solid var(--border-subtle);
-    background: rgba(17, 24, 39, 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - var(--header-height));
-    position: sticky;
-    top: var(--header-height);
-}
 
-.sidebar-header {
-    padding: 20px 20px 12px;
-    border-bottom: 1px solid var(--border-subtle);
-}
-
-.sidebar-header h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--text-primary);
-}
-
-.twitter-tab-bar {
-    display: flex;
-    gap: 4px;
-}
-
-.twitter-tab {
-    flex: 1;
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-glass);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-subtle);
-    font-family: var(--font-main);
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    text-align: center;
-}
-
-.twitter-tab:hover {
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.twitter-tab.active {
-    color: white;
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--accent-indigo);
-}
-
-.twitter-embed-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-}
-
-.twitter-embed-area::-webkit-scrollbar {
-    width: 4px;
-}
-
-.twitter-embed-area::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.twitter-embed-area::-webkit-scrollbar-thumb {
-    background: var(--border-subtle);
-    border-radius: 2px;
-}
-
-.twitter-timeline-wrapper {
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--bg-glass);
-    border: 1px solid var(--border-subtle);
-}
 
 /* --- モーダル --- */
 .modal-overlay {
@@ -678,6 +594,38 @@ body {
     font-weight: 500;
 }
 
+/* 翻訳ボタン */
+.btn-translate {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 18px;
+    background: rgba(52, 211, 153, 0.1);
+    color: var(--accent-emerald);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    margin-left: auto;
+}
+
+.btn-translate:hover {
+    background: rgba(52, 211, 153, 0.2);
+    border-color: var(--accent-emerald);
+    transform: translateY(-1px);
+}
+
+.btn-translate.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.btn-translate.loading svg {
+    animation: spin 1s linear infinite;
+}
+
 .modal-title {
     font-size: 1.4rem;
     font-weight: 700;
@@ -727,24 +675,8 @@ body {
 
 /* --- レスポンシブ --- */
 @media (max-width: 1024px) {
-    #app-main {
-        flex-direction: column;
-    }
-
     #feed-section {
         max-width: 100%;
-    }
-
-    #twitter-sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-        border-left: none;
-        border-top: 1px solid var(--border-subtle);
-    }
-
-    .twitter-embed-area {
-        max-height: 500px;
     }
 }
 

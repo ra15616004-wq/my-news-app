@@ -1,0 +1,33 @@
+/Users/riku/Desktop/AntigravityProjects/news-app/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [44560]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59234 - "GET /api/config HTTP/1.1" 200 OK
+2026-03-07 00:12:52,739 [INFO] main: ニュース記事を新規取得中...
+2026-03-07 00:12:52,739 [INFO] rss_fetcher: RSSフィード取得中: TechCrunch (https://techcrunch.com/feed/)
+2026-03-07 00:12:52,805 [INFO] rss_fetcher: RSSフィード取得中: The Verge (https://www.theverge.com/rss/index.xml)
+2026-03-07 00:12:52,902 [INFO] rss_fetcher: RSSフィード取得中: Hacker News (Best) (https://hnrss.org/best)
+2026-03-07 00:12:53,785 [INFO] rss_fetcher: RSSフィード取得中: NHK ニュース (https://www3.nhk.or.jp/rss/news/cat0.xml)
+2026-03-07 00:12:53,913 [INFO] rss_fetcher: RSSフィード取得中: はてなブックマーク (テクノロジー) (https://b.hatena.ne.jp/hotentry/it.rss)
+2026-03-07 00:12:54,068 [INFO] rss_fetcher: RSS記事取得完了: 47件
+2026-03-07 00:12:54,068 [WARNING] news_api: GNEWS_API_KEYが設定されていません。ダミーデータを返します。
+2026-03-07 00:12:54,068 [WARNING] news_api: GNEWS_API_KEYが設定されていません。ダミーデータを返します。
+2026-03-07 00:12:54,068 [WARNING] news_api: GNEWS_API_KEYが設定されていません。ダミーデータを返します。
+INFO:     127.0.0.1:59234 - "GET /api/news HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59317 - "POST /api/translate HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:59329 - "GET /?cache_bust=123456789 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59329 - "GET /api/config HTTP/1.1" 200 OK
+2026-03-07 00:17:05,731 [INFO] main: キャッシュヒット
+INFO:     127.0.0.1:59329 - "GET /api/news HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59396 - "GET /static/app.js?t=1772810409912 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59415 - "GET /static/app.js?t=1772810448186 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59429 - "GET /static/app.js?t=1772810506735 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59434 - "GET /static/app.js?t=1772810526954 HTTP/1.1" 200 OK
+2026-03-07 00:24:05,860 [INFO] main: 翻訳リクエスト受信: The Trump phone was a no-show ...
+INFO:     127.0.0.1:59470 - "POST /api/translate HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44560]

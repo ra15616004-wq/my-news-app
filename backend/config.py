@@ -15,14 +15,9 @@ CACHE_TTL = 300  # 5分
 # GNewsカテゴリ一覧
 GNEWS_CATEGORIES = [
     "general",
-    "world",
-    "nation",
-    "business",
     "technology",
+    "business",
     "entertainment",
-    "sports",
-    "science",
-    "health",
 ]
 
 # デフォルトRSSフィード
@@ -54,8 +49,5 @@ RSS_FEEDS = [
     },
 ]
 
-# X(Twitter) 埋め込みアカウント
-TWITTER_ACCOUNTS = [
-    {"handle": "naboron", "label": "テック系ニュース"},
-    {"handle": "googlejapan", "label": "Google Japan"},
-]
+# X(Twitter) 埋め込みアカウント (削除済み)
+TWITTER_ACCOUNTS = []

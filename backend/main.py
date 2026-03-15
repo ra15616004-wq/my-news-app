@@ -1,4 +1,6 @@
 # main.py — FastAPI サーバー
+from __future__ import annotations
+
 import time
 import logging
 from pathlib import Path
@@ -11,6 +13,8 @@ from fastapi.responses import FileResponse
 from config import CACHE_TTL, GNEWS_CATEGORIES, RSS_FEEDS, TWITTER_ACCOUNTS
 from rss_fetcher import fetch_rss_feeds
 from news_api import fetch_news_api, fetch_all_categories
+from translator import translate_article
+from pydantic import BaseModel
 
 # ロギング設定
 logging.basicConfig(
@@ -25,6 +29,11 @@ app = FastAPI(
     description="広告なし自分専用ニュースアグリゲーター",
     version="1.0.0",
 )
+
+# リクエストモデル
+class TranslationRequest(BaseModel):
+    title: str
+    summary: str
 
 # CORS設定（ローカル開発用）
 app.add_middleware(
@@ -103,7 +112,7 @@ async def get_news(
 
     try:
         # ニュースAPI取得
-        api_articles = fetch_all_categories()
+        api_articles = fetch_all_categories(GNEWS_CATEGORIES)
         all_articles.extend(api_articles)
     except Exception as e:
         logger.error(f"ニュースAPI取得エラー: {e}")
@@ -123,6 +132,20 @@ async def get_news(
         "cached": False,
         "cache_remaining": CACHE_TTL,
     }
+
+
+@app.post("/api/translate")
+async def translate_news_content(request: TranslationRequest):
+    """
+    記事のタイトルとサマリーを日本語に翻訳する。
+    """
+    logger.info(f"翻訳リクエスト受信: {request.title[:30]}...")
+    try:
+        translated = translate_article(request.title, request.summary)
+        return translated
+    except Exception as e:
+        logger.error(f"翻訳リミットまたはエラー: {e}")
+        return {"title": request.title, "summary": request.summary, "error": str(e)}
 
 
 @app.get("/api/config")

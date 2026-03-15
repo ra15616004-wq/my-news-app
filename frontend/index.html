@@ -113,24 +113,7 @@
             </div>
         </section>
 
-        <!-- 右カラム: Xタイムライン -->
-        <aside id="twitter-sidebar">
-            <div class="sidebar-header">
-                <h2>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                    タイムライン
-                </h2>
-                <div class="twitter-tab-bar" id="twitter-tabs">
-                    <!-- タブは動的に生成 -->
-                </div>
-            </div>
-            <div id="twitter-embed-container" class="twitter-embed-area">
-                <!-- X埋め込みタイムラインはここに挿入 -->
-            </div>
-        </aside>
+
     </main>
 
     <!-- ========== リーダーモーダル ========== -->
@@ -148,6 +131,18 @@
                     <span id="modal-source" class="modal-source"></span>
                     <span id="modal-date" class="modal-date"></span>
                     <span id="modal-category" class="modal-category-badge"></span>
+                    <button id="translate-btn" class="btn-translate" title="日本語に翻訳">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m5 8 6 6" />
+                            <path d="m4 14 6-6 2-3" />
+                            <path d="M2 5h12" />
+                            <path d="M7 2h1" />
+                            <path d="m22 22-5-10-5 10" />
+                            <path d="M14 18h6" />
+                        </svg>
+                        <span>翻訳（JP）</span>
+                    </button>
                 </div>
                 <h2 id="modal-title" class="modal-title"></h2>
                 <img id="modal-image" class="modal-image hidden" alt="" />

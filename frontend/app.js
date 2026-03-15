@@ -12,6 +12,7 @@ const state = {
     config: null,
     isLoading: false,
     lastRefresh: 0,
+    translations: {},          // 翻訳キャッシュ { index: { title, summary } }
 };
 
 // ========== DOM要素 ==========
@@ -23,11 +24,11 @@ const elements = {
     cacheIndicator: document.getElementById('cache-indicator'),
     cacheTimer: document.getElementById('cache-timer'),
     categoryFilter: document.getElementById('category-filter'),
-    twitterTabs: document.getElementById('twitter-tabs'),
-    twitterContainer: document.getElementById('twitter-embed-container'),
+    categoryFilter: document.getElementById('category-filter'),
     // モーダル
     readerModal: document.getElementById('reader-modal'),
     modalClose: document.getElementById('modal-close'),
+    translateBtn: document.getElementById('translate-btn'),
     modalTitle: document.getElementById('modal-title'),
     modalSource: document.getElementById('modal-source'),
     modalDate: document.getElementById('modal-date'),
@@ -42,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadConfig();
     await fetchNews();
     setupEventListeners();
-    setupTwitterEmbeds();
 });
 
 // ========== 設定読み込み ==========
@@ -51,7 +51,7 @@ async function loadConfig() {
         const res = await fetch(`${API_BASE}/api/config`);
         state.config = await res.json();
         renderCategoryChips();
-        renderTwitterTabs();
+        renderCategoryChips();
     } catch (err) {
         console.error('設定読み込みエラー:', err);
     }
@@ -194,76 +194,68 @@ function getCategoryLabel(cat) {
     return labels[cat] || cat;
 }
 
-// ========== X(Twitter) タイムライン ==========
-function renderTwitterTabs() {
-    if (!state.config || !state.config.twitter_accounts) return;
 
-    elements.twitterTabs.innerHTML = state.config.twitter_accounts.map((acc, i) => {
-        return `<button class="twitter-tab ${i === 0 ? 'active' : ''}" data-handle="${acc.handle}" data-index="${i}">@${acc.handle}</button>`;
-    }).join('');
 
-    // タブ切替イベント
-    elements.twitterTabs.querySelectorAll('.twitter-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            elements.twitterTabs.querySelectorAll('.twitter-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            loadTwitterTimeline(tab.dataset.handle);
-        });
-    });
-}
+async function handleTranslation() {
+    const modalIndex = elements.readerModal.dataset.currentIndex;
+    const article = getFilteredArticles()[modalIndex];
+    if (!article) return;
 
-function setupTwitterEmbeds() {
-    if (!state.config || !state.config.twitter_accounts || state.config.twitter_accounts.length === 0) return;
-
-    // 最初のアカウントのタイムラインを読み込み
-    loadTwitterTimeline(state.config.twitter_accounts[0].handle);
-}
-
-function loadTwitterTimeline(handle) {
-    elements.twitterContainer.innerHTML = `
-        <div class="twitter-timeline-wrapper">
-            <a class="twitter-timeline" 
-               href="https://twitter.com/${handle}"
-               data-theme="dark"
-               data-chrome="noheader nofooter noborders transparent"
-               data-height="600"
-               data-width="100%">
-                @${handle} のツイート
-            </a>
-        </div>
-    `;
-
-    // Xウィジェットスクリプトを読み込み
-    if (window.twttr && window.twttr.widgets) {
-        window.twttr.widgets.load(elements.twitterContainer);
-    } else {
-        const script = document.createElement('script');
-        script.src = 'https://platform.twitter.com/widgets.js';
-        script.async = true;
-        script.charset = 'utf-8';
-        script.onload = () => {
-            if (window.twttr && window.twttr.widgets) {
-                window.twttr.widgets.load(elements.twitterContainer);
-            }
-        };
-        // ウィジェット読み込み失敗時のフォールバック
-        script.onerror = () => {
-            elements.twitterContainer.innerHTML = `
-                <div class="twitter-timeline-wrapper" style="padding: 24px; text-align: center;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-muted); margin-bottom: 12px;">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 8px;">Xタイムラインの読み込みに失敗しました</p>
-                    <p style="color: var(--text-muted); font-size: 0.72rem;">ブラウザのセキュリティ設定により表示されない場合があります</p>
-                    <a href="https://twitter.com/${handle}" target="_blank" rel="noopener noreferrer" 
-                       style="display: inline-block; margin-top: 12px; padding: 8px 16px; background: rgba(99,102,241,0.2); color: var(--accent-indigo-light); border-radius: 8px; text-decoration: none; font-size: 0.8rem;">
-                        Xで@${handle}を開く ↗
-                    </a>
-                </div>
-            `;
-        };
-        document.head.appendChild(script);
+    // すでに翻訳済みなら元に戻す（トグル）
+    if (article.isTranslated) {
+        elements.modalTitle.textContent = article.originalTitle || article.title;
+        elements.modalSummary.textContent = article.originalSummary || article.summary;
+        article.isTranslated = false;
+        elements.translateBtn.querySelector('span').textContent = '翻訳（JP）';
+        return;
     }
+
+    // キャッシュをチェック
+    const cacheKey = article.url;
+    if (state.translations[cacheKey]) {
+        applyTranslation(article, state.translations[cacheKey]);
+        return;
+    }
+
+    // 翻訳API呼び出し
+    elements.translateBtn.classList.add('loading');
+    elements.translateBtn.disabled = true;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: article.title,
+                summary: article.summary
+            })
+        });
+
+        const translatedData = await response.json();
+
+        // キャッシュに保存
+        state.translations[cacheKey] = translatedData;
+
+        applyTranslation(article, translatedData);
+
+    } catch (err) {
+        console.error('翻訳エラー:', err);
+        alert('翻訳に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+        elements.translateBtn.classList.remove('loading');
+        elements.translateBtn.disabled = false;
+    }
+}
+
+function applyTranslation(article, data) {
+    // オリジナルの内容を保存
+    if (!article.originalTitle) article.originalTitle = article.title;
+    if (!article.originalSummary) article.originalSummary = article.summary;
+
+    elements.modalTitle.textContent = data.title;
+    elements.modalSummary.textContent = data.summary;
+    article.isTranslated = true;
+    elements.translateBtn.querySelector('span').textContent = '原文を表示';
 }
 
 // ========== リーダーモーダル ==========
@@ -272,10 +264,17 @@ function openReader(filteredIndex) {
     const article = filtered[filteredIndex];
     if (!article) return;
 
-    elements.modalTitle.textContent = article.title;
+    // 現在のインデックスを保持
+    elements.readerModal.dataset.currentIndex = filteredIndex;
+
+    elements.modalTitle.textContent = article.isTranslated ? article.originalTitle : article.title;
     elements.modalSource.textContent = article.source;
     elements.modalDate.textContent = formatDate(article.date);
     elements.modalCategory.textContent = getCategoryLabel(article.category);
+
+    // 翻訳状態をリセット（表示上のみ）
+    article.isTranslated = false;
+    elements.translateBtn.querySelector('span').textContent = '翻訳（JP）';
 
     if (article.thumbnail && article.thumbnail.length > 10) {
         elements.modalImage.src = article.thumbnail;
@@ -322,6 +321,9 @@ function setupEventListeners() {
     elements.refreshBtn.addEventListener('click', () => {
         fetchNews(true);
     });
+
+    // 翻訳ボタン
+    elements.translateBtn.addEventListener('click', handleTranslation);
 
     // モーダル閉じる
     elements.modalClose.addEventListener('click', closeReader);

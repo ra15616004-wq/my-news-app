@@ -1,4 +1,5 @@
 # rss_fetcher.py — RSSフィード取得・パース
+from __future__ import annotations
 import feedparser
 from datetime import datetime
 from time import mktime
